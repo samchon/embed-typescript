@@ -81,7 +81,7 @@ async function collectPackage(props: {
   async function iterate(location: string): Promise<void> {
     const directory: string[] = await fs.promises.readdir(location);
     for (const file of directory) {
-      const next: string = `${location}/${file}`;
+      const next: string = path.join(location, file);
       const stats: fs.Stats = await fs.promises.stat(next);
       if (file === "node_modules" && stats.isDirectory())
         for (const nextLib of await fs.promises.readdir(next)) {
