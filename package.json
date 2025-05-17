@@ -1,6 +1,6 @@
 {
   "name": "embed-typescript-compiler",
-  "version": "0.2.3",
+  "version": "1.0.0",
   "description": "Embed TypeScript Compiler in your NodeJS/Browser Application",
   "main": "src/index.ts",
   "scripts": {
