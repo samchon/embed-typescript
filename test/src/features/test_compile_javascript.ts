@@ -7,9 +7,11 @@ import fs from "fs";
 import ts from "typescript";
 import typiaTransform from "typia/lib/transform";
 
+import { TestGlobal } from "../TestGlobal";
+
 export async function test_compile_success(): Promise<void> {
   const compiler: EmbedTypeScript = new EmbedTypeScript({
-    external: await import("../external.json" as any),
+    external: await TestGlobal.getExternal(),
     compilerOptions: {
       target: ts.ScriptTarget.ES2015,
       module: ts.ModuleKind.CommonJS,
@@ -37,7 +39,7 @@ export async function test_compile_success(): Promise<void> {
   });
   if (result.type !== "success") throw new Error("Compilation failed.");
 
-  const directory: string = `${__dirname}/../../bin`;
+  const directory: string = `${TestGlobal.ROOT}/bin`;
   try {
     await fs.promises.mkdir(directory, { recursive: true });
   } catch {}

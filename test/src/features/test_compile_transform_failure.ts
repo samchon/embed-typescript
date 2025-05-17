@@ -6,9 +6,11 @@ import {
 import ts from "typescript";
 import typiaTransform from "typia/lib/transform";
 
+import { TestGlobal } from "../TestGlobal";
+
 export async function test_compile_transform_failure(): Promise<void> {
   const compiler: EmbedTypeScript = new EmbedTypeScript({
-    external: await import("../external.json" as any),
+    external: await TestGlobal.getExternal(),
     compilerOptions: {
       target: ts.ScriptTarget.ES2015,
       module: ts.ModuleKind.CommonJS,
