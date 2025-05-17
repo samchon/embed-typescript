@@ -5,13 +5,29 @@ import { IEmbedTypeScriptDiagnostic } from "./IEmbedTypeScriptDiagnostic";
 import { IEmbedTypeScriptProps } from "./IEmbedTypeScriptProps";
 import { IEmbedTypeScriptResult } from "./IEmbedTypeScriptResult";
 
+/**
+ * Embedded TypeScript Compiler.
+ *
+ * `EmbedTypeScript` is a class that provides an embedded TypeScript
+ * compiler functionality. It allows you to compile TypeScript code
+ * directly in your application without requiring external build tools
+ * or processes.
+ *
+ * This class encapsulates TypeScript's compiler API to provide
+ * a simpler interface for compiling TypeScript code on-the-fly.
+ *
+ * @author Jeongho Nam - https://github.com/samchon
+ */
 export class EmbedTypeScript {
-  private externalDefinitions: Singleton<string[]>;
-
   /**
    * Initializer constructor.
    *
-   * @param props Properties for embedded TypeScript compiler.
+   * Creates a new instance of the embedded TypeScript compiler with the
+   * specified properties. Initializes the compiler environment with the
+   * provided configuration options and external type definitions.
+   *
+   * @param props Properties for embedded TypeScript compiler, including
+   *              compiler options and external definitions.
    */
   public constructor(private readonly props: IEmbedTypeScriptProps) {
     this.externalDefinitions = new Singleton(() =>
@@ -22,15 +38,28 @@ export class EmbedTypeScript {
   /**
    * Compile TypeScript files.
    *
-   * @param files TypeScript files to compile
-   * @returns Compilation result
+   * Processes and compiles the provided TypeScript files according to the
+   * compiler configuration specified in the constructor. Handles both
+   * successful compilations and compilation failures.
+   *
+   * If the compilation is successful, its returned type is
+   * {@link IEmbedTypeScriptResult.ISuccess} with the generated JavaScript code.
+   * If compilation errors occur, an {@link IEmbedTypeScriptResult.IFailure}
+   * typed value will be returned with diagnostic information. If an
+   * unexpected error occurs during compilation, an
+   * {@link IEmbedTypeScriptResult.IException} will be returned with the
+   * error details.
+   *
+   * @param files A record mapping file names to their TypeScript source code
+   * @returns A typed result indicating success, failure with diagnostics,
+   *          or exception
    */
   public compile(files: Record<string, string>): IEmbedTypeScriptResult {
     try {
       return this.processCompile(files);
     } catch (error) {
       return {
-        type: "error",
+        type: "exception",
         error:
           error instanceof Error
             ? {
@@ -101,6 +130,8 @@ export class EmbedTypeScript {
       javascript,
     };
   }
+
+  private externalDefinitions: Singleton<string[]>;
 }
 
 function getCategory(
