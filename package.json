@@ -1,6 +1,6 @@
 {
   "name": "embed-typescript-compiler",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "description": "Embed TypeScript Compiler in your NodeJS/Browser Application",
   "main": "src/index.ts",
   "scripts": {
@@ -14,8 +14,15 @@
     "nodejs",
     "browser"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/samchon/embed-typescript-compiler"
+  },
   "author": "Jeongho Nam",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/samchon/embed-typescript-compiler/issues"
+  },
   "peerDependencies": {
     "typescript": ">=5.0.0 <6.0.0"
   },
@@ -34,7 +41,8 @@
       "embed-typescript-compiler": "lib/cli/index.js"
     },
     "main": "lib/index.js",
-    "typings": "lib/index.d.ts"
+    "typings": "lib/index.d.ts",
+    "access": "public"
   },
   "files": [
     "lib",
