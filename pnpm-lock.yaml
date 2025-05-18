@@ -36,7 +36,7 @@ importers:
       chalk:
         specifier: 4.1.2
         version: 4.1.2
-      embed-typescript-compiler:
+      embed-typescript:
         specifier: workspace:^
         version: link:..
       tstl:

@@ -1,14 +1,14 @@
-# Embed-TypeScript-Compiler
+# Embed-TypeScript
 
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/samchon/embed-typescript-compiler/blob/master/LICENSE)
-[![NPM Version](https://img.shields.io/npm/v/embed-typescript-compiler.svg)](https://www.npmjs.com/package/embed-typescript-compiler)
-[![NPM Downloads](https://img.shields.io/npm/dm/embed-typescript-compiler.svg)](https://www.npmjs.com/package/embed-typescript-compiler)
-[![Build Status](https://github.com/samchon/embed-typescript-compiler/workflows/build/badge.svg)](https://github.com/samchon/embed-typescript-compiler/actions?query=workflow%3Abuild)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/samchon/embed-typescript/blob/master/LICENSE)
+[![NPM Version](https://img.shields.io/npm/v/embed-typescript.svg)](https://www.npmjs.com/package/embed-typescript)
+[![NPM Downloads](https://img.shields.io/npm/dm/embed-typescript.svg)](https://www.npmjs.com/package/embed-typescript)
+[![Build Status](https://github.com/samchon/embed-typescript/workflows/build/badge.svg)](https://github.com/samchon/embed-typescript/actions?query=workflow%3Abuild)
 [![Discord Badge](https://img.shields.io/badge/discord-samchon-d91965?style=flat&labelColor=5866f2&logo=discord&logoColor=white&link=https://discord.gg/E94XhzrUCZ)](https://discord.gg/E94XhzrUCZ)
 
 A powerful library that enables embedding the TypeScript compiler directly into your applications, supporting both Node.js and browser environments.
 
-`embed-typescript-compiler` provides a streamlined API to compile TypeScript code on-the-fly without requiring external build tools or processes. This makes it ideal for applications that need to dynamically compile TypeScript code, such as playgrounds, code editors, or automated code generation tools.
+`embed-typescript` provides a streamlined API to compile TypeScript code on-the-fly without requiring external build tools or processes. This makes it ideal for applications that need to dynamically compile TypeScript code, such as playgrounds, code editors, or automated code generation tools.
 
 ## Features
 
@@ -22,7 +22,7 @@ A powerful library that enables embedding the TypeScript compiler directly into 
 
 ```bash
 npm install typescript
-npm install embed-typescript-compiler
+npm install embed-typescript
 ```
 
 Note: TypeScript is a peer dependency that must be installed separately.
@@ -37,7 +37,7 @@ The following example demonstrates how to create an embedded TypeScript compiler
 import {
   EmbedTypeScript,
   IEmbedTypeScriptResult,
-} from "embed-typescript-compiler";
+} from "embed-typescript";
 import ts from "typescript";
 import typiaTransform from "typia/lib/transform";
 
@@ -103,7 +103,7 @@ npm install @types/node @samchon/openapi typia
 
 # 2. Use the CLI tool to extract type definitions into a JSON file
 cd ..
-npx embed-typescript-compiler external \
+npx embed-typescript external \
   --input ./compiler-dependencies \
   --output ./src/external.json
 ```
@@ -151,7 +151,7 @@ The `compile` method returns an `IEmbedTypeScriptResult` which can be one of thr
 
 ![Typia Playground](https://github.com/user-attachments/assets/2e60f5e8-a419-4f35-b9e4-71ae265d5785)
 
-`embed-typescript-compiler` is used in several production applications:
+`embed-typescript` is used in several production applications:
 
 - [`typia` playground](https://typia.io/playground) - TypeScript type to runtime function
 - [`AutoBE`](https://github.com/wrtnlabs/autobe) - AI viral coding agent of backend server with compiler feedback

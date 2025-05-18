@@ -2,7 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 import {
   EmbedTypeScript,
   IEmbedTypeScriptResult,
-} from "embed-typescript-compiler";
+} from "embed-typescript";
 import ts from "typescript";
 import typiaTransform from "typia/lib/transform";
 

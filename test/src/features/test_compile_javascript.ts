@@ -2,7 +2,7 @@ import cp from "child_process";
 import {
   EmbedTypeScript,
   IEmbedTypeScriptResult,
-} from "embed-typescript-compiler";
+} from "embed-typescript";
 import fs from "fs";
 import ts from "typescript";
 import typiaTransform from "typia/lib/transform";
