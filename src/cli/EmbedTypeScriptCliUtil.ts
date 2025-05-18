@@ -11,17 +11,17 @@ export namespace EmbedTypeScriptCliUtil {
   }
 }
 
-const USAGE = `npx embed-typescript-compiler [command] [options]
+const USAGE = `npx embed-typescript [command] [options]
 
 Commands:
   
-  1. embed-typescript-compiler help
-  2. embed-typescript-compiler external --input <directory> --output <json>
+  1. embed-typescript help
+  2. embed-typescript external --input <directory> --output <json>
      - input: directory placed in external dependencies
        - where "node_modules" and "package-lock.json" are
        - must be installed with npm, not pnpm or yarn
      - output: json file to be generated
-      - example: embed-typescript-compiler external \\
+      - example: embed-typescript external \\
                    --input assets/dependencies \\ 
                    --output src/external.json 
 `;
