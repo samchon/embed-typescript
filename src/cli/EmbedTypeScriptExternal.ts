@@ -20,12 +20,12 @@ export namespace EmbedTypeScriptExternal {
       EmbedTypeScriptCliUtil.halt("Input directory not found", -1);
     else if ((await fs.promises.stat(input)).isDirectory() === false)
       EmbedTypeScriptCliUtil.halt("Input is not a directory", -1);
-    else if (fs.existsSync(path.join(input, "node_modules")) === false)
+    else if (fs.existsSync(path.resolve(input, "node_modules")) === false)
       EmbedTypeScriptCliUtil.halt(
         "node_modules not found in input directory",
         -1,
       );
-    else if (fs.existsSync(path.join(input, "package-lock.json")) === false)
+    else if (fs.existsSync(path.resolve(input, "package-lock.json")) === false)
       EmbedTypeScriptCliUtil.halt(
         "package-lock.json not found in input directory",
         -1,
@@ -58,7 +58,10 @@ async function getExternal(input: string): Promise<Record<string, string>> {
     packages: Record<string, unknown>;
   }
   const { packages }: IPackageJson = JSON.parse(
-    await fs.promises.readFile(path.join(input, "package-lock.json"), "utf-8"),
+    await fs.promises.readFile(
+      path.resolve(input, "package-lock.json"),
+      "utf-8",
+    ),
   );
   const dependencies: string[] = Object.keys(packages)
     .filter((lib) => lib.startsWith("node_modules/"))
@@ -68,7 +71,7 @@ async function getExternal(input: string): Promise<Record<string, string>> {
     await collectPackage({
       container,
       library: lib,
-      root: path.join(input, "node_modules", lib),
+      root: path.resolve(input, "node_modules", lib),
     });
   return container;
 }
@@ -81,7 +84,7 @@ async function collectPackage(props: {
   async function iterate(location: string): Promise<void> {
     const directory: string[] = await fs.promises.readdir(location);
     for (const file of directory) {
-      const next: string = path.join(location, file);
+      const next: string = path.resolve(location, file);
       const stats: fs.Stats = await fs.promises.stat(next);
       if (file === "node_modules" && stats.isDirectory())
         for (const nextLib of await fs.promises.readdir(next)) {
@@ -104,6 +107,8 @@ async function collectPackage(props: {
       ) {
         props.container[
           `node_modules/${props.library}${next.substring(props.root.length)}`
+            .split(path.sep)
+            .join("/")
         ] = await fs.promises.readFile(next, "utf8");
       }
     }
