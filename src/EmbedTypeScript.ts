@@ -160,7 +160,7 @@ export class EmbedTypeScript {
     } catch (error) {
       return this.throw(
         error,
-      ) satisfies IEmbedTypeScriptTransformation.IException;
+      );
     }
   }
 
