@@ -4,6 +4,7 @@ import ts from "typescript";
 import { IEmbedTypeScriptDiagnostic } from "./IEmbedTypeScriptDiagnostic";
 import { IEmbedTypeScriptProps } from "./IEmbedTypeScriptProps";
 import { IEmbedTypeScriptResult } from "./IEmbedTypeScriptResult";
+import { IEmbedTypeScriptTransformation } from "./IEmbedTypeScriptTransformation";
 
 /**
  * Embedded TypeScript Compiler.
@@ -56,26 +57,114 @@ export class EmbedTypeScript {
    */
   public compile(files: Record<string, string>): IEmbedTypeScriptResult {
     try {
-      return this.processCompile(files);
-    } catch (error) {
+      const { program, diagnostics, javascript } = this.prepare(files);
+      program.emit(
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        this.props.transformers?.(program, diagnostics) ?? undefined,
+      );
+      diagnostics.push(...ts.getPreEmitDiagnostics(program));
+      if (diagnostics.length)
+        return {
+          type: "failure",
+          javascript,
+          diagnostics: diagnostics.map((x) => ({
+            file: x.file?.fileName ?? null,
+            category: getCategory(x.category),
+            code: x.code,
+            start: x.start,
+            length: x.length,
+            messageText: getMessageText(x.messageText),
+          })),
+        };
       return {
-        type: "exception",
-        error:
-          error instanceof Error
-            ? {
-                ...error,
-                name: error.name,
-                message: error.message,
-                stack: error.stack,
-              }
-            : error,
+        type: "success",
+        javascript,
       };
+    } catch (error) {
+      return this.throw(error);
     }
   }
 
-  private processCompile(
+  /**
+   * Transform TypeScript files using custom transformers.
+   *
+   * Processes and transforms the provided TypeScript files according to the
+   * transformers specified in the constructor. Unlike compilation which converts
+   * TypeScript to JavaScript, this method performs source-to-source transformations
+   * and returns modified TypeScript code.
+   *
+   * If the transformation is successful, the returned type is
+   * {@link IEmbedTypeScriptTransformation.ISuccess} with the transformed TypeScript code.
+   * If transformation errors occur, an {@link IEmbedTypeScriptTransformation.IFailure}
+   * typed value will be returned with diagnostic information. If an
+   * unexpected error occurs during transformation, an
+   * {@link IEmbedTypeScriptTransformation.IException} will be returned with the
+   * error details.
+   *
+   * @param files A record mapping file names to their TypeScript source code
+   * @returns A typed result indicating success, failure with diagnostics,
+   *          or exception
+   */
+  public transform(
     files: Record<string, string>,
-  ): IEmbedTypeScriptResult {
+  ): IEmbedTypeScriptTransformation {
+    const transformers = this.props.transformers;
+    if (transformers === undefined)
+      throw new Error("Transformers are not defined in props.");
+    try {
+      const { program, diagnostics, sourceFiles } = this.prepare(files);
+      const factory = transformers(program, diagnostics).before?.[0] as
+        | ts.TransformerFactory<ts.SourceFile>
+        | undefined;
+      if (factory === undefined)
+        throw new Error("No transformer factory provided in transformers.");
+
+      const fileNames: string[] = Object.keys(files);
+      const results: ts.TransformationResult<ts.SourceFile>[] = fileNames.map(
+        (name) =>
+          ts.transform(
+            sourceFiles.get(name),
+            [factory],
+            program.getCompilerOptions(),
+          ),
+      );
+      const printer: ts.Printer = ts.createPrinter({
+        newLine: ts.NewLineKind.LineFeed,
+      });
+      const typescript: Record<string, string> = Object.fromEntries(
+        results.map((r, i) => [
+          fileNames[i],
+          printer.printFile(r.transformed[0]),
+        ]),
+      );
+      return diagnostics.length
+        ? {
+            type: "failure",
+            typescript,
+            diagnostics: diagnostics.map((x) => ({
+              file: x.file?.fileName ?? null,
+              category: getCategory(x.category),
+              code: x.code,
+              start: x.start,
+              length: x.length,
+              messageText: getMessageText(x.messageText),
+            })),
+          }
+        : {
+            type: "success",
+            typescript,
+          };
+    } catch (error) {
+      return this.throw(
+        error,
+      );
+    }
+  }
+
+  private prepare(files: Record<string, string>): ICompilerAsset {
     const sourceFiles = new VariadicSingleton((f: string) =>
       ts.createSourceFile(
         f,
@@ -104,30 +193,26 @@ export class EmbedTypeScript {
         jsDocParsingMode: ts.JSDocParsingMode.ParseAll,
       },
     );
-    program.emit(
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      this.props.transformers?.(program, diagnostics) ?? undefined,
-    );
-    diagnostics.push(...ts.getPreEmitDiagnostics(program));
-    if (diagnostics.length)
-      return {
-        type: "failure",
-        javascript,
-        diagnostics: diagnostics.map((x) => ({
-          file: x.file?.fileName ?? null,
-          category: getCategory(x.category),
-          code: x.code,
-          start: x.start,
-          length: x.length,
-          messageText: getMessageText(x.messageText),
-        })),
-      };
     return {
-      type: "success",
+      program,
+      diagnostics,
       javascript,
+      sourceFiles,
+    };
+  }
+
+  private throw(error: unknown): IEmbedTypeScriptResult.IException {
+    return {
+      type: "exception",
+      error:
+        error instanceof Error
+          ? {
+              ...error,
+              name: error.name,
+              message: error.message,
+              stack: error.stack,
+            }
+          : error,
     };
   }
 
@@ -145,4 +230,11 @@ function getCategory(
 
 function getMessageText(text: string | ts.DiagnosticMessageChain): string {
   return typeof text === "string" ? text : text.messageText;
+}
+
+interface ICompilerAsset {
+  program: ts.Program;
+  diagnostics: ts.Diagnostic[];
+  javascript: Record<string, string>;
+  sourceFiles: VariadicSingleton<ts.SourceFile, [file: string]>;
 }
