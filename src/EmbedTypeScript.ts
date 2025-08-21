@@ -158,9 +158,7 @@ export class EmbedTypeScript {
             typescript,
           };
     } catch (error) {
-      return this.throw(
-        error,
-      );
+      return this.throw(error);
     }
   }
 
