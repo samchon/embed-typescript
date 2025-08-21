@@ -229,7 +229,9 @@ function getCategory(
 }
 
 function getMessageText(text: string | ts.DiagnosticMessageChain): string {
-  return typeof text === "string" ? text : text.messageText;
+  return typeof text === "string"
+    ? text
+    : ts.flattenDiagnosticMessageText(text, "\n");
 }
 
 interface ICompilerAsset {
