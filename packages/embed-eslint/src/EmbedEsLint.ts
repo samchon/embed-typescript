@@ -12,10 +12,36 @@ import ts from "typescript";
 
 import { IEmbedEsLintProps } from "./IEmbedEsLintProps";
 
+/**
+ * Embedded TypeScript Compiler with ESLint Integration.
+ *
+ * `EmbedEsLint` extends the functionality of the embedded TypeScript
+ * compiler by integrating ESLint linting capabilities. It provides
+ * real-time code quality checking alongside TypeScript compilation,
+ * converting ESLint violations into TypeScript diagnostic format for
+ * unified error reporting.
+ *
+ * This class combines TypeScript compilation with ESLint rule checking,
+ * allowing you to catch both type errors and code style issues in a
+ * single compilation pass.
+ *
+ * @author Jeongho Nam - https://github.com/samchon
+ */
 export class EmbedEsLint {
   private readonly tsc: EmbedTypeScript;
   private readonly linter: Linter;
 
+  /**
+   * Initializer constructor.
+   *
+   * Creates a new instance of the embedded TypeScript compiler with ESLint
+   * integration. Initializes both the TypeScript compiler and ESLint linter
+   * with the provided configuration, including TypeScript compiler options,
+   * external definitions, and ESLint rules.
+   *
+   * @param props Properties for embedded TypeScript compiler with ESLint,
+   *              including compiler options, external definitions, and ESLint rules.
+   */
   public constructor(private readonly props: IEmbedEsLintProps) {
     this.tsc = new EmbedTypeScript(props);
     this.linter = new Linter({ configType: "eslintrc" });
@@ -26,6 +52,25 @@ export class EmbedEsLint {
     });
   }
 
+  /**
+   * Compile TypeScript files with ESLint validation.
+   *
+   * Performs TypeScript compilation followed by ESLint linting on the provided
+   * files. This method first compiles the TypeScript code, then runs ESLint
+   * validation on each file, converting any ESLint rule violations into
+   * TypeScript diagnostic format for unified error reporting.
+   *
+   * If the compilation is successful and no ESLint violations are found,
+   * returns {@link IEmbedTypeScriptResult.ISuccess} with the generated JavaScript.
+   * If TypeScript compilation errors or ESLint violations occur, returns
+   * {@link IEmbedTypeScriptResult.IFailure} with combined diagnostics.
+   * If an exception occurs during processing, returns
+   * {@link IEmbedTypeScriptResult.IException} with error details.
+   *
+   * @param files A record mapping file paths to their TypeScript source code content.
+   * @returns The compilation result containing either generated JavaScript code,
+   *          diagnostic information, or exception details.
+   */
   public compile(files: Record<string, string>): IEmbedTypeScriptResult {
     const ptr: IPointer<IEmbedTypeScriptFountain | null> = { value: null };
     const result: IEmbedTypeScriptResult = this.tsc.compile(files, ptr);
