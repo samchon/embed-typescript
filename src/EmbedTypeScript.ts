@@ -200,17 +200,19 @@ export class EmbedTypeScript {
       [...Object.keys(files), ...this.externalDefinitions.get()],
       this.props.compilerOptions,
       {
-        fileExists: (f) => !!files[f] || !!this.props.external[f],
-        readFile: (f) => files[f] ?? this.props.external[f],
-        writeFile: (f, c) => (javascript[f] = c),
-        getSourceFile: (f) => sourceFiles.get(f),
+        fileExists: (f) =>
+          !!files[canonical(f)] || !!this.props.external[canonical(f)],
+        readFile: (f) =>
+          files[canonical(f)] ?? this.props.external[canonical(f)],
+        writeFile: (f, c) => (javascript[canonical(f)] = c),
+        getSourceFile: (f) => sourceFiles.get(canonical(f)),
         getDefaultLibFileName: () =>
           "node_modules/typescript/lib/lib.es2015.d.ts",
         directoryExists: () => true,
         getCurrentDirectory: () => "",
         getDirectories: () => [],
         getNewLine: () => "\n",
-        getCanonicalFileName: (f) => f,
+        getCanonicalFileName: canonical,
         useCaseSensitiveFileNames: () => false,
         jsDocParsingMode: ts.JSDocParsingMode.ParseAll,
       },
@@ -290,3 +292,5 @@ export namespace EmbedTypeScript {
       ? text
       : ts.flattenDiagnosticMessageText(text, "\n");
 }
+
+const canonical = (str: string) => str.split("\\").join("/");
