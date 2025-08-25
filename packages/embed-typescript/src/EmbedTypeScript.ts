@@ -210,7 +210,7 @@ export class EmbedTypeScript {
         getCurrentDirectory: () => "",
         getDirectories: () => [],
         getNewLine: () => "\n",
-        getCanonicalFileName: (f) => f,
+        getCanonicalFileName: (f) => f.split("\\").join("/"),
         useCaseSensitiveFileNames: () => false,
         jsDocParsingMode: ts.JSDocParsingMode.ParseAll,
       },

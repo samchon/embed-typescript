@@ -1,14 +1,16 @@
 {
-  "name": "embed-typescript",
-  "version": "1.3.2",
-  "description": "Embed TypeScript Compiler in your NodeJS/Browser Application",
-  "main": "src/index.ts",
+  "private": true,
+  "name": "@samchon/embed",
+  "version": "2.0.0",
+  "description": "Embed TypeScript and EsLint Compilers in your NodeJS/Browser Application",
   "scripts": {
-    "build": "rimraf lib && tsc",
-    "dev": "pnpm run build --watch"
+    "build": "pnpm --filter=./packages/** -r build",
+    "package:latest": "node deploy/versions.js && pnpm --filter=./packages/** -r publish --tag latest",
+    "package:next": "node deploy/versions.js && pnpm --filter=./packages/** -r publish --tag next"
   },
   "keywords": [
     "typescript",
+    "eslint",
     "compiler",
     "embed",
     "nodejs",
@@ -24,32 +26,9 @@
   "bugs": {
     "url": "https://github.com/samchon/embed-typescript/issues"
   },
-  "peerDependencies": {
-    "typescript": ">=5.0.0 <6.0.0"
-  },
-  "dependencies": {
-    "tstl": "^3.0.0"
-  },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
-    "@types/node": "^22.15.18",
     "prettier": "^3.5.3",
-    "rimraf": "^6.0.1",
-    "typescript": "~5.9.2"
-  },
-  "publishConfig": {
-    "bin": {
-      "embed-typescript": "lib/cli/index.js"
-    },
-    "main": "lib/index.js",
-    "typings": "lib/index.d.ts",
-    "access": "public"
-  },
-  "files": [
-    "lib",
-    "src",
-    "package.json",
-    "README.md",
-    "LICENSE"
-  ]
+    "prettier-plugin-jsdoc": "^1.3.2"
+  }
 }

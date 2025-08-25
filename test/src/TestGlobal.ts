@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import { Singleton } from "tstl";
 
-import { EmbedTypeScriptExternal } from "../../src/cli/EmbedTypeScriptExternal";
+import { EmbedTypeScriptExternal } from "embed-typescript/src/cli/EmbedTypeScriptExternal";
 
 export namespace TestGlobal {
   export const ROOT = path.resolve(`${__dirname}/..`);
