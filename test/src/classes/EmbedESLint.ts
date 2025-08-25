@@ -62,6 +62,7 @@ export class EmbedESLint {
   ): IEmbedTypeScriptDiagnostic[] {
     const config: Linter.Config[] = [
       {
+        files: ["**/*"],
         languageOptions: {
           parser: tsParser,
           parserOptions: {
