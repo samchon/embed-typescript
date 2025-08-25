@@ -190,22 +190,35 @@ export class EmbedTypeScript {
     const sourceFiles = new VariadicSingleton((f: string) =>
       ts.createSourceFile(
         f,
-        this.props.external[f] ?? files[f] ?? "",
+        this.props.external[canonical(f)] ?? files[canonical(f)] ?? "",
         ts.ScriptTarget.ESNext,
       ),
     );
     const diagnostics: ts.Diagnostic[] = [];
     const javascript: Record<string, string> = {};
+    const trace = (title: string, str: string) => {
+      if (EmbedTypeScript.trace === true) console.log(title, str);
+    };
     const program: ts.Program = ts.createProgram(
-      [...Object.keys(files), ...this.externalDefinitions.get()],
+      [...Object.keys(files).map(canonical), ...this.externalDefinitions.get()],
       this.props.compilerOptions,
       {
-        fileExists: (f) =>
-          !!files[canonical(f)] || !!this.props.external[canonical(f)],
-        readFile: (f) =>
-          files[canonical(f)] ?? this.props.external[canonical(f)],
-        writeFile: (f, c) => (javascript[canonical(f)] = c),
-        getSourceFile: (f) => sourceFiles.get(canonical(f)),
+        fileExists: (f) => {
+          trace("fileExists", f);
+          return !!files[canonical(f)] || !!this.props.external[canonical(f)];
+        },
+        readFile: (f) => {
+          trace("readFile", f);
+          return files[canonical(f)] ?? this.props.external[canonical(f)];
+        },
+        writeFile: (f, c) => {
+          trace("writeFile", f);
+          return (javascript[canonical(f)] = c);
+        },
+        getSourceFile: (f) => {
+          trace("getSourceFile", f);
+          return sourceFiles.get(canonical(f));
+        },
         getDefaultLibFileName: () =>
           "node_modules/typescript/lib/lib.es2015.d.ts",
         directoryExists: () => true,
@@ -291,6 +304,8 @@ export namespace EmbedTypeScript {
     typeof text === "string"
       ? text
       : ts.flattenDiagnosticMessageText(text, "\n");
+
+  export let trace: boolean = false;
 }
 
 const canonical = (str: string) => str.split("\\").join("/");

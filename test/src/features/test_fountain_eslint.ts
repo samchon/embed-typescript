@@ -28,9 +28,9 @@ const process = async (name: string, expected: "success" | "failure") => {
     },
   });
   const result = await compiler.compile({
-    "src\\api\\structures\\ISomething.ts": "export interface ISomething {}",
-    "src\\main.ts": `
-        import { ${name} } from "./api/lib/structures/ISomething";
+    "src/api/structures/ISomething.ts": "export interface ISomething {}",
+    "src/main.ts": `
+        import { ${name} } from "./api/structures/ISomething";
         const x: ${name} = {};
         console.log(x);
       `,

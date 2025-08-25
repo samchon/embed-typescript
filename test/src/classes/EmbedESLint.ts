@@ -13,33 +13,27 @@ import ts from "typescript";
 
 export class EmbedESLint {
   private readonly tsc: EmbedTypeScript;
+  private readonly linter: Linter;
 
   public constructor(private readonly props: EmbedESLint.IProps) {
     this.tsc = new EmbedTypeScript(props);
+    this.linter = new Linter({
+      configType: "flat",
+    });
   }
 
   public compile(files: Record<string, string>): IEmbedTypeScriptResult {
-    // Normalize file paths to use forward slashes
-    const normalizedFiles: Record<string, string> = {};
-    for (const [key, value] of Object.entries(files)) {
-      const normalizedKey = key.split("\\").join("/");
-      normalizedFiles[normalizedKey] = value;
-    }
-
     const ptr: IPointer<IEmbedTypeScriptFountain | null> = {
       value: null,
     };
-    const result: IEmbedTypeScriptResult = this.tsc.compile(
-      normalizedFiles,
-      ptr,
-    );
+    const result: IEmbedTypeScriptResult = this.tsc.compile(files, ptr);
     if (ptr.value === null)
       // unreachable code
       throw new Error("Faileld to get fountain.");
     else if (result.type !== "exception")
       try {
         const diagnostics: IEmbedTypeScriptDiagnostic[] = [];
-        for (const [key, value] of Object.entries(normalizedFiles))
+        for (const [key, value] of Object.entries(files))
           diagnostics.push(...this.compileFile(key, value, ptr.value.program));
         if (result.type === "failure")
           return {
@@ -66,9 +60,6 @@ export class EmbedESLint {
     sourceCode: string,
     program: ts.Program,
   ): IEmbedTypeScriptDiagnostic[] {
-    const linter: Linter = new Linter({
-      configType: "flat",
-    });
     const config: Linter.Config[] = [
       {
         languageOptions: {
@@ -88,14 +79,18 @@ export class EmbedESLint {
         ),
       },
     ];
-    const report: Linter.FixReport = linter.verifyAndFix(
-      sourceCode,
-      config,
-      fileName,
-    );
-    return report.messages.map((msg) =>
-      transformMessage(msg, fileName, sourceCode),
-    );
+    EmbedTypeScript.trace = true;
+    try {
+      const messages: Linter.LintMessage[] = this.linter.verify(
+        sourceCode,
+        config,
+        fileName,
+      );
+      EmbedTypeScript.trace = false;
+      return messages.map((msg) => transformMessage(msg, fileName, sourceCode));
+    } finally {
+      EmbedTypeScript.trace = false;
+    }
   }
 }
 export namespace EmbedESLint {
