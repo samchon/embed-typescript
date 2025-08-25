@@ -34,8 +34,7 @@ export const test_fountain_eslint = async () => {
     `,
   });
   TestValidator.equals("result")(result.type)("failure");
-  TestValidator.predicate(
-    "reseult.diagnostics"
+    "result.diagnostics"
   )(
     () => result.type === "failure" &&
       result.diagnostics.some(d => d.messageText.includes("Promises must be awaited"))
