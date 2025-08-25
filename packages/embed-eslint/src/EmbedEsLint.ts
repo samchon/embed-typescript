@@ -78,11 +78,10 @@ export class EmbedEsLint {
     else if (result.type === "exception") return result;
 
     const diagnostics: IEmbedTypeScriptDiagnostic[] = [];
-    for (const [key, value] of Object.entries(files)) {
+    for (const [key, value] of Object.entries(files))
       try {
         diagnostics.push(...this.compileFile(key, value, ptr.value.program));
       } catch {}
-    }
     if (result.type === "failure")
       return {
         ...result,
