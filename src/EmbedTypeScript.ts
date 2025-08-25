@@ -2,6 +2,7 @@ import { Singleton, VariadicSingleton } from "tstl";
 import ts from "typescript";
 
 import { IEmbedTypeScriptDiagnostic } from "./IEmbedTypeScriptDiagnostic";
+import { IEmbedTypeScriptFountain } from "./IEmbedTypeScriptFountain";
 import { IEmbedTypeScriptProps } from "./IEmbedTypeScriptProps";
 import { IEmbedTypeScriptResult } from "./IEmbedTypeScriptResult";
 import { IEmbedTypeScriptTransformation } from "./IEmbedTypeScriptTransformation";
@@ -57,31 +58,31 @@ export class EmbedTypeScript {
    */
   public compile(files: Record<string, string>): IEmbedTypeScriptResult {
     try {
-      const { program, diagnostics, javascript } = this.prepare(files);
-      program.emit(
+      const base: IEmbedTypeScriptFountain = this.fountain(files);
+      base.program.emit(
         undefined,
         undefined,
         undefined,
         undefined,
-        this.props.transformers?.(program, diagnostics) ?? undefined,
+        this.props.transformers?.(base.program, base.diagnostics) ?? undefined,
       );
-      diagnostics.push(...ts.getPreEmitDiagnostics(program));
-      if (diagnostics.length)
+      base.diagnostics.push(...ts.getPreEmitDiagnostics(base.program));
+      if (base.diagnostics.length)
         return {
           type: "failure",
-          javascript,
-          diagnostics: diagnostics.map((x) => ({
+          javascript: base.javascript,
+          diagnostics: base.diagnostics.map((x) => ({
             file: x.file?.fileName ?? null,
-            category: getCategory(x.category),
+            category: EmbedTypeScript.getCategory(x.category),
             code: x.code,
             start: x.start,
             length: x.length,
-            messageText: getMessageText(x.messageText),
+            messageText: EmbedTypeScript.getMessageText(x.messageText),
           })),
         };
       return {
         type: "success",
-        javascript,
+        javascript: base.javascript,
       };
     } catch (error) {
       return this.throw(error);
@@ -115,10 +116,9 @@ export class EmbedTypeScript {
     if (transformers === undefined)
       throw new Error("Transformers are not defined in props.");
     try {
-      const { program, diagnostics, sourceFiles } = this.prepare(files);
-      const factory = transformers(program, diagnostics).before?.[0] as
-        | ts.TransformerFactory<ts.SourceFile>
-        | undefined;
+      const base: IEmbedTypeScriptFountain = this.fountain(files);
+      const factory = transformers(base.program, base.diagnostics)
+        .before?.[0] as ts.TransformerFactory<ts.SourceFile> | undefined;
       if (factory === undefined)
         throw new Error("No transformer factory provided in transformers.");
 
@@ -126,9 +126,9 @@ export class EmbedTypeScript {
       const results: ts.TransformationResult<ts.SourceFile>[] = fileNames.map(
         (name) =>
           ts.transform(
-            sourceFiles.get(name),
+            base.sourceFiles.get(name),
             [factory],
-            program.getCompilerOptions(),
+            base.program.getCompilerOptions(),
           ),
       );
       const printer: ts.Printer = ts.createPrinter({
@@ -140,17 +140,17 @@ export class EmbedTypeScript {
           printer.printFile(r.transformed[0]),
         ]),
       );
-      return diagnostics.length
+      return base.diagnostics.length
         ? {
             type: "failure",
             typescript,
-            diagnostics: diagnostics.map((x) => ({
+            diagnostics: base.diagnostics.map((x) => ({
               file: x.file?.fileName ?? null,
-              category: getCategory(x.category),
+              category: EmbedTypeScript.getCategory(x.category),
               code: x.code,
               start: x.start,
               length: x.length,
-              messageText: getMessageText(x.messageText),
+              messageText: EmbedTypeScript.getMessageText(x.messageText),
             })),
           }
         : {
@@ -162,7 +162,26 @@ export class EmbedTypeScript {
     }
   }
 
-  private prepare(files: Record<string, string>): ICompilerAsset {
+  /**
+   * Create TypeScript compiler foundation.
+   *
+   * Builds the foundational components required for TypeScript compilation,
+   * including the TypeScript program, source files, and diagnostic collection.
+   * This method sets up an in-memory TypeScript compiler environment with
+   * virtual file system capabilities.
+   *
+   * The fountain provides access to the TypeScript compiler API primitives
+   * needed for both compilation and transformation operations. It creates
+   * source files from the provided file contents and external definitions,
+   * initializes an empty JavaScript output container, and prepares a diagnostic
+   * collection for capturing compilation issues.
+   *
+   * @param files A record mapping file names to their TypeScript source code
+   * @returns An {@link IEmbedTypeScriptFountain} containing the TypeScript
+   *          program, diagnostics array, JavaScript output container, and
+   *          source file cache
+   */
+  public fountain(files: Record<string, string>): IEmbedTypeScriptFountain {
     const sourceFiles = new VariadicSingleton((f: string) =>
       ts.createSourceFile(
         f,
@@ -216,25 +235,53 @@ export class EmbedTypeScript {
 
   private externalDefinitions: Singleton<string[]>;
 }
+export namespace EmbedTypeScript {
+  /**
+   * Convert TypeScript diagnostic category to standardized category.
+   *
+   * Maps TypeScript's internal {@link ts.DiagnosticCategory} enum values
+   * to the simplified string-based categories used by embed-typescript.
+   * This conversion provides a more convenient and type-safe way to work
+   * with diagnostic severities.
+   *
+   * The mapping follows these rules:
+   * - `ts.DiagnosticCategory.Message` → "message"
+   * - `ts.DiagnosticCategory.Suggestion` → "suggestion"
+   * - `ts.DiagnosticCategory.Warning` → "warning"
+   * - `ts.DiagnosticCategory.Error` → "error" (default)
+   *
+   * @param value The TypeScript compiler's diagnostic category enum value
+   * @returns A standardized category string: "message", "suggestion", "warning", or "error"
+   */
+  export const getCategory = (
+    value: ts.DiagnosticCategory,
+  ): IEmbedTypeScriptDiagnostic.Category => {
+    if (value === ts.DiagnosticCategory.Message) return "message";
+    else if (value === ts.DiagnosticCategory.Suggestion) return "suggestion";
+    else if (value === ts.DiagnosticCategory.Warning) return "warning";
+    return "error";
+  };
 
-function getCategory(
-  value: ts.DiagnosticCategory,
-): IEmbedTypeScriptDiagnostic.Category {
-  if (value === ts.DiagnosticCategory.Message) return "message";
-  else if (value === ts.DiagnosticCategory.Suggestion) return "suggestion";
-  else if (value === ts.DiagnosticCategory.Warning) return "warning";
-  return "error";
-}
-
-function getMessageText(text: string | ts.DiagnosticMessageChain): string {
-  return typeof text === "string"
-    ? text
-    : ts.flattenDiagnosticMessageText(text, "\n");
-}
-
-interface ICompilerAsset {
-  program: ts.Program;
-  diagnostics: ts.Diagnostic[];
-  javascript: Record<string, string>;
-  sourceFiles: VariadicSingleton<ts.SourceFile, [file: string]>;
+  /**
+   * Extract message text from TypeScript diagnostic.
+   *
+   * Converts TypeScript's diagnostic message format into a plain string.
+   * TypeScript diagnostics can contain either simple strings or complex
+   * message chains with nested context. This method flattens any message
+   * chains into readable, newline-separated text.
+   *
+   * When the input is already a string, it returns it unchanged. When the
+   * input is a {@link ts.DiagnosticMessageChain}, it uses TypeScript's
+   * built-in flattening utility to convert the chain into a formatted string
+   * with proper indentation and newline separators.
+   *
+   * @param text The diagnostic message text, either as a string or message chain
+   * @returns A flattened string representation of the diagnostic message
+   */
+  export const getMessageText = (
+    text: string | ts.DiagnosticMessageChain,
+  ): string =>
+    typeof text === "string"
+      ? text
+      : ts.flattenDiagnosticMessageText(text, "\n");
 }
