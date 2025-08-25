@@ -1,4 +1,4 @@
-import { Singleton, VariadicSingleton } from "tstl";
+import { IPointer, Singleton, VariadicSingleton } from "tstl";
 import ts from "typescript";
 
 import { IEmbedTypeScriptDiagnostic } from "./IEmbedTypeScriptDiagnostic";
@@ -53,12 +53,17 @@ export class EmbedTypeScript {
    * error details.
    *
    * @param files A record mapping file names to their TypeScript source code
+   * @param fountainPointer Optional pointer to receive the fountain value
    * @returns A typed result indicating success, failure with diagnostics,
    *          or exception
    */
-  public compile(files: Record<string, string>): IEmbedTypeScriptResult {
+  public compile(
+    files: Record<string, string>,
+    fountainPointer?: IPointer<IEmbedTypeScriptFountain | null>,
+  ): IEmbedTypeScriptResult {
     try {
       const base: IEmbedTypeScriptFountain = this.fountain(files);
+      if (fountainPointer !== undefined) fountainPointer.value = base;
       base.program.emit(
         undefined,
         undefined,
