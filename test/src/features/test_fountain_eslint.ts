@@ -34,6 +34,9 @@ const process = async (name: string, expected: "success" | "failure") => {
         const x: ${name} = {};
         console.log(x);
       `,
+    "src/something.ts": `
+      fetch("something");
+    `,
   });
   if (result.type === "failure") console.log(result.diagnostics);
   else if (result.type === "exception") console.log(result.error);
