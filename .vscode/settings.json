@@ -1,11 +1,11 @@
 {
   "editor.tabSize": 2,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
-  "[mdx]": {
+  "editor.formatOnSave": true,
+  "[md|mdx]": {
     "editor.wordWrap": "on"
   },
   "claudeCodeChat.permissions.yoloMode": false

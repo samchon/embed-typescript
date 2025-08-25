@@ -4,18 +4,19 @@ import {
   EmbedTypeScript,
   IEmbedTypeScriptDiagnostic,
   IEmbedTypeScriptFountain,
-  IEmbedTypeScriptProps,
   IEmbedTypeScriptResult,
 } from "embed-typescript";
 import { Linter } from "eslint";
 import { IPointer } from "tstl";
 import ts from "typescript";
 
-export class EmbedESLint {
+import { IEmbedEsLintProps } from "./IEmbedEsLintProps";
+
+export class EmbedEsLint {
   private readonly tsc: EmbedTypeScript;
   private readonly linter: Linter;
 
-  public constructor(private readonly props: EmbedESLint.IProps) {
+  public constructor(private readonly props: IEmbedEsLintProps) {
     this.tsc = new EmbedTypeScript(props);
     this.linter = new Linter({ configType: "eslintrc" });
 
@@ -51,6 +52,9 @@ export class EmbedESLint {
     return result;
   }
 
+  /**
+   * @internal
+   */
   private compileFile(
     fileName: string,
     sourceCode: string,
@@ -84,12 +88,9 @@ export class EmbedESLint {
   }
 }
 
-export namespace EmbedESLint {
-  export interface IProps extends IEmbedTypeScriptProps {
-    rules: Record<string, any>;
-  }
-}
-
+/**
+ * @internal
+ */
 const transformMessage = (
   message: Linter.LintMessage,
   fileName: string,
@@ -133,6 +134,9 @@ const transformMessage = (
   };
 };
 
+/**
+ * @internal
+ */
 const getPositionFromLineColumn = (
   sourceCode: string,
   line: number,

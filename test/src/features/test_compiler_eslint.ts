@@ -1,16 +1,11 @@
 import { TestValidator } from "@nestia/e2e";
+import { EmbedEsLint } from "embed-eslint";
 import ts from "typescript";
 
 import { TestGlobal } from "../TestGlobal";
-import { EmbedESLint } from "../classes/EmbedESLint";
 
 export const test_fountain_eslint = async () => {
-  await process("ISomething", "success");
-  // await process("ISomethingX", "failure");
-};
-
-const process = async (name: string, expected: "success" | "failure") => {
-  const compiler: EmbedESLint = new EmbedESLint({
+  const compiler: EmbedEsLint = new EmbedEsLint({
     external: await TestGlobal.getExternal(),
     compilerOptions: {
       target: ts.ScriptTarget.ESNext,
@@ -30,15 +25,19 @@ const process = async (name: string, expected: "success" | "failure") => {
   const result = await compiler.compile({
     "src/api/structures/ISomething.ts": "export interface ISomething {}",
     "src/main.ts": `
-        import { ${name} } from "./api/structures/ISomething";
-        const x: ${name} = {};
+        import { ISomething } from "./api/structures/ISomething";
+        const x: ISomething = {};
         console.log(x);
       `,
     "src/something.ts": `
       fetch("something");
     `,
   });
-  if (result.type === "failure") console.log(result.diagnostics);
-  else if (result.type === "exception") console.log(result.error);
-  TestValidator.equals("result")(result.type)(expected);
+  TestValidator.equals("result")(result.type)("failure");
+  TestValidator.predicate(
+    "reseult.diagnostics"
+  )(
+    () => result.type === "failure" &&
+      result.diagnostics.some(d => d.messageText.includes("Promises must be awaited"))
+  )
 };

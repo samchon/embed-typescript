@@ -1,0 +1,56 @@
+{
+  "name": "embed-typescript",
+  "version": "1.4.0-dev.20250825",
+  "description": "Embed TypeScript Compiler in your NodeJS/Browser Application",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "rimraf lib && tsc",
+    "dev": "pnpm run build --watch",
+    "prepack": "pnpm run build"
+  },
+  "keywords": [
+    "typescript",
+    "compiler",
+    "embed",
+    "nodejs",
+    "browser"
+  ],
+  "license": "MIT",
+  "author": "Jeongho Nam",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/samchon/embed-typescript"
+  },
+  "homepage": "https://github.com/samchon/embed-typescript",
+  "bugs": {
+    "url": "https://github.com/samchon/embed-typescript/issues"
+  },
+  "peerDependencies": {
+    "typescript": ">=5.0.0 <6.0.0"
+  },
+  "dependencies": {
+    "tstl": "^3.0.0"
+  },
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
+    "@types/node": "^22.15.18",
+    "prettier": "^3.5.3",
+    "rimraf": "^6.0.1",
+    "typescript": "~5.9.2"
+  },
+  "publishConfig": {
+    "bin": {
+      "embed-typescript": "lib/cli/index.js"
+    },
+    "main": "lib/index.js",
+    "typings": "lib/index.d.ts",
+    "access": "public"
+  },
+  "files": [
+    "lib",
+    "src",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ]
+}
