@@ -21,13 +21,16 @@ ESLint integration for embedded TypeScript compilation.
 ## Installation
 
 ```bash
-npm install typescript embed-typescript embed-eslint eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin
+npm install embed-typescript embed-eslint 
+npm install typescript 
+npm install eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin
 ```
 
 Note: All of the following are peer dependencies that must be installed separately:
-- `typescript` (>=5.0.0)
+
 - `embed-typescript` 
-- `eslint` (>=8.0.0)
+- `typescript`
+- `eslint`
 - `@typescript-eslint/parser` (>=6.0.0)
 - `@typescript-eslint/eslint-plugin` (>=6.0.0)
 
