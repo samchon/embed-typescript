@@ -2,10 +2,11 @@ import { TestValidator } from "@nestia/e2e";
 import { EmbedEsLint } from "embed-eslint";
 import { IEmbedTypeScriptResult } from "embed-typescript";
 import ts from "typescript";
+import typia from "typia";
 
 import { TestGlobal } from "../TestGlobal";
 
-export const test_fountain_eslint = async () => {
+export const test_eslint_no_floating_promises = async () => {
   const compiler: EmbedEsLint = new EmbedEsLint({
     external: await TestGlobal.getExternal(),
     compilerOptions: {
@@ -34,6 +35,7 @@ export const test_fountain_eslint = async () => {
       fetch("something");
     `,
   });
+  typia.assert(result);
   TestValidator.equals("result")(result.type)("failure");
   TestValidator.predicate("result.diagnostics")(
     () =>
