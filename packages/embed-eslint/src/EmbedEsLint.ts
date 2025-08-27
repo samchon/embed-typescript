@@ -44,8 +44,8 @@ export class EmbedEsLint {
    */
   public constructor(private readonly props: IEmbedEsLintProps) {
     this.tsc = new EmbedTypeScript(props);
-    this.linter = new Linter({ configType: "eslintrc" });
 
+    this.linter = new Linter({ configType: "eslintrc" });
     this.linter.defineParser("@typescript-eslint/parser", tsParser);
     Object.entries(tsEslintPlugin.rules || {}).forEach(([ruleName, rule]) => {
       this.linter.defineRule(`@typescript-eslint/${ruleName}`, rule as any);
@@ -121,13 +121,11 @@ export class EmbedEsLint {
         ]),
       ),
     };
-
     const messages: Linter.LintMessage[] = this.linter.verify(
       sourceCode,
       eslintConfig as any,
       { filename: fileName },
     );
-
     return messages.map((msg) => transformMessage(msg, fileName, sourceCode));
   }
 }
@@ -157,21 +155,7 @@ const transformMessage = (
   return {
     category: message.severity === 2 ? "error" : "warning",
     code: message.ruleId || message.messageId || "eslint",
-    file: {
-      fileName,
-      text: sourceCode,
-      getLineAndCharacterOfPosition: (pos: number) => {
-        const lines = sourceCode.split("\n");
-        let currentPos = 0;
-        for (let i = 0; i < lines.length; i++) {
-          if (currentPos + lines[i].length >= pos) {
-            return { line: i, character: pos - currentPos };
-          }
-          currentPos += lines[i].length + 1; // +1 for newline
-        }
-        return { line: 0, character: 0 };
-      },
-    } as any,
+    file: fileName,
     start,
     length: end - start,
     messageText: message.message,
