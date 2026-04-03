@@ -1,6 +1,6 @@
 {
   "name": "embed-eslint",
-  "version": "1.4.0-dev.20250825",
+  "version": "3.0.0",
   "description": "Embed EsLint Compiler in your NodeJS/Browser Application",
   "main": "src/index.ts",
   "scripts": {
@@ -40,7 +40,7 @@
     "@typescript-eslint/parser": "^8.40.0",
     "eslint": "^9.34.0",
     "rimraf": "^6.0.1",
-    "typescript": "~5.9.2"
+    "typescript": "~6.0.2"
   },
   "publishConfig": {
     "main": "lib/index.js",

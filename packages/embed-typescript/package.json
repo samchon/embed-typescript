@@ -1,6 +1,6 @@
 {
   "name": "embed-typescript",
-  "version": "1.4.0-dev.20250825",
+  "version": "3.0.0",
   "description": "Embed TypeScript Compiler in your NodeJS/Browser Application",
   "main": "src/index.ts",
   "scripts": {
@@ -26,7 +26,7 @@
     "url": "https://github.com/samchon/embed-typescript/issues"
   },
   "peerDependencies": {
-    "typescript": ">=5.0.0 <6.0.0"
+    "typescript": ">=5.0.0 <7.0.0"
   },
   "dependencies": {
     "tstl": "^3.0.0"
@@ -36,7 +36,7 @@
     "@types/node": "^22.15.18",
     "prettier": "^3.5.3",
     "rimraf": "^6.0.1",
-    "typescript": "~5.9.2"
+    "typescript": "~6.0.2"
   },
   "publishConfig": {
     "bin": {
