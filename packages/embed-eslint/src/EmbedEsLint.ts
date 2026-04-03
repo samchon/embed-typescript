@@ -50,6 +50,13 @@ export class EmbedEsLint {
     Object.entries(tsEslintPlugin.rules || {}).forEach(([ruleName, rule]) => {
       this.linter.defineRule(`@typescript-eslint/${ruleName}`, rule as any);
     });
+    if (props.plugins) {
+      Object.entries(props.plugins).forEach(([pluginName, plugin]) => {
+        Object.entries(plugin.rules).forEach(([ruleName, rule]) => {
+          this.linter.defineRule(`${pluginName}/${ruleName}`, rule);
+        });
+      });
+    }
   }
 
   /**
@@ -114,9 +121,7 @@ export class EmbedEsLint {
       },
       rules: Object.fromEntries(
         Object.entries(this.props.rules).map(([key, value]) => [
-          key.startsWith("@typescript-eslint/")
-            ? key
-            : `@typescript-eslint/${key}`,
+          key.includes("/") ? key : `@typescript-eslint/${key}`,
           value,
         ]),
       ),
