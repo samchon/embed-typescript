@@ -191,6 +191,55 @@ const compiler = new EmbedEsLint({
 });
 ```
 
+### Custom ESLint Plugins
+
+You can register custom ESLint rule implementations at runtime using the `plugins` option.
+Each plugin groups rules under a namespace — the plugin key becomes the rule prefix.
+
+```typescript
+import { EmbedEsLint } from "embed-eslint";
+import { Rule } from "eslint";
+import ts from "typescript";
+
+// Define a custom rule implementation
+const noUnsafeRepoCall: Rule.RuleModule = {
+  meta: {
+    type: "problem",
+    messages: {
+      unsafe: "Direct repository calls are not allowed here.",
+    },
+    schema: [],
+  },
+  create(context) {
+    return {
+      CallExpression(node) {
+        // your rule logic here
+      },
+    };
+  },
+};
+
+const compiler = new EmbedEsLint({
+  compilerOptions: {
+    target: ts.ScriptTarget.ES2015,
+    module: ts.ModuleKind.CommonJS,
+  },
+  // Register custom plugins
+  plugins: {
+    autobe: {
+      rules: {
+        "no-unsafe-repo-call": noUnsafeRepoCall,
+      },
+    },
+  },
+  // Enable the custom rule
+  rules: {
+    "autobe/no-unsafe-repo-call": "error",
+    "@typescript-eslint/no-floating-promises": "error",
+  },
+});
+```
+
 ## How It Works
 
 1. **TypeScript Compilation**: First compiles your TypeScript code using the embedded TypeScript compiler
