@@ -1,6 +1,6 @@
 {
   "name": "@embed-typescript/test",
-  "version": "0.0.0",
+  "version": "3.0.0",
   "description": "Test functions for embed-typescript",
   "scripts": {
     "prepare": "ts-patch install",
