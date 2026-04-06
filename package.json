@@ -5,8 +5,9 @@
   "description": "Embed TypeScript and EsLint Compilers in your NodeJS/Browser Application",
   "scripts": {
     "build": "pnpm --filter=./packages/** -r build",
-    "package:latest": "node deploy/versions.js && pnpm --filter=./packages/** -r publish --tag latest",
-    "package:next": "node deploy/versions.js && pnpm --filter=./packages/** -r publish --tag next"
+    "package:latest": "pnpm --filter=./packages/** -r publish --tag latest",
+    "package:next": "bash next.bash",
+    "release": "bumpp -r"
   },
   "keywords": [
     "typescript",
