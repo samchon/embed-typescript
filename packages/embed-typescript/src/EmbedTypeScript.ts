@@ -76,14 +76,22 @@ export class EmbedTypeScript {
         return {
           type: "failure",
           javascript: base.javascript,
-          diagnostics: base.diagnostics.map((x) => ({
-            file: x.file?.fileName ?? null,
-            category: EmbedTypeScript.getCategory(x.category),
-            code: x.code,
-            start: x.start,
-            length: x.length,
-            messageText: EmbedTypeScript.getMessageText(x.messageText),
-          })),
+          diagnostics: base.diagnostics.map((x) => {
+            const pos: ts.LineAndCharacter | undefined =
+              x.file !== undefined && x.start !== undefined
+                ? x.file.getLineAndCharacterOfPosition(x.start)
+                : undefined;
+            return {
+              file: x.file?.fileName ?? null,
+              category: EmbedTypeScript.getCategory(x.category),
+              code: x.code,
+              start: x.start,
+              length: x.length,
+              line: pos !== undefined ? pos.line + 1 : undefined,
+              character: pos !== undefined ? pos.character + 1 : undefined,
+              messageText: EmbedTypeScript.getMessageText(x.messageText),
+            };
+          }),
         };
       return {
         type: "success",
@@ -149,14 +157,22 @@ export class EmbedTypeScript {
         ? {
             type: "failure",
             typescript,
-            diagnostics: base.diagnostics.map((x) => ({
-              file: x.file?.fileName ?? null,
-              category: EmbedTypeScript.getCategory(x.category),
-              code: x.code,
-              start: x.start,
-              length: x.length,
-              messageText: EmbedTypeScript.getMessageText(x.messageText),
-            })),
+            diagnostics: base.diagnostics.map((x) => {
+              const pos: ts.LineAndCharacter | undefined =
+                x.file !== undefined && x.start !== undefined
+                  ? x.file.getLineAndCharacterOfPosition(x.start)
+                  : undefined;
+              return {
+                file: x.file?.fileName ?? null,
+                category: EmbedTypeScript.getCategory(x.category),
+                code: x.code,
+                start: x.start,
+                length: x.length,
+                line: pos !== undefined ? pos.line + 1 : undefined,
+                character: pos !== undefined ? pos.character + 1 : undefined,
+                messageText: EmbedTypeScript.getMessageText(x.messageText),
+              };
+            }),
           }
         : {
             type: "success",

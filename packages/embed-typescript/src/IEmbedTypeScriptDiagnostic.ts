@@ -35,6 +35,16 @@ export interface IEmbedTypeScriptDiagnostic {
   length: number | undefined;
 
   /**
+   * 1-based line number where the diagnostic starts, or undefined if not available.
+   */
+  line: number | undefined;
+
+  /**
+   * 1-based character (column) position where the diagnostic starts, or undefined if not available.
+   */
+  character: number | undefined;
+
+  /**
    * The human-readable diagnostic message describing the issue.
    */
   messageText: string;

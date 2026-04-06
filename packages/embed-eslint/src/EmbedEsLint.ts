@@ -143,12 +143,12 @@ const transformMessage = (
   fileName: string,
   sourceCode: string,
 ): IEmbedTypeScriptDiagnostic => {
-  const start = getPositionFromLineColumn(
+  const start: number = getPositionFromLineColumn(
     sourceCode,
     message.line,
     message.column,
   );
-  const end =
+  const end: number =
     message.endLine && message.endColumn
       ? getPositionFromLineColumn(
           sourceCode,
@@ -163,6 +163,8 @@ const transformMessage = (
     file: fileName,
     start,
     length: end - start,
+    line: message.line,
+    character: message.column,
     messageText: message.message,
   };
 };
